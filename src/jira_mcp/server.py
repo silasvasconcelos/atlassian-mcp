@@ -15,7 +15,8 @@ import contextlib
 from mcp.server.streamable_http_manager import StreamableHTTPSessionManager
 from mcp.server.fastmcp.server import StreamableHTTPASGIApp
 from starlette.applications import Starlette
-from starlette.routing import Mount
+from starlette.responses import PlainTextResponse
+from starlette.routing import Mount, Route
 from mcp.types import Resource, Tool, ResourcesCapability, ServerCapabilities, ToolsCapability
 
 from .client import JiraClient
@@ -247,15 +248,22 @@ async def _run_server() -> None:
             await send({"type": "http.response.body", "body": b"Not Found"})
 
     prefix_app = MCPPrefixApp(streamable_app, prefix="/mcp")
+
+    async def health(_: object):
+        return PlainTextResponse("ok")
+
     app = Starlette(
         lifespan=lifespan,
-        routes=[Mount("/", app=prefix_app)],
+        routes=[
+            Route("/health", health),
+            Mount("/", app=prefix_app),
+        ],
     )
 
     import uvicorn
 
     host = os.getenv("MCP_HOST", "0.0.0.0")
-    port = int(os.getenv("MCP_PORT", "8000"))
+    port = int(os.getenv("MCP_PORT") or os.getenv("PORT") or "8000")
 
     config = uvicorn.Config(
         app,
