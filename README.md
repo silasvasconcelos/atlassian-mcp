@@ -6,6 +6,11 @@ Servidor MCP para Jira.
 
 O usuário **não executa o MCP localmente**. Ele se conecta ao endereço onde o servidor MCP estiver publicado.
 
+## Deploy
+
+- Railway: veja `docs/deploy-railway.md`
+- Coolify: veja `docs/deploy-coolify.md`
+
 Se precisar alterar o host/porta do servidor:
 
 - `MCP_HOST` (default `0.0.0.0`)
